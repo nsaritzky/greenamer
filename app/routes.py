@@ -24,6 +24,8 @@ ARBITRARY_MONDAY = date(2018, 4, 16)
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('rules'))
+    OAUTH_URL = Config.OAUTH_URL
+    print(OAUTH_URL)
 
     return render_template('index.html', title='Home')
 

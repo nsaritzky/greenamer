@@ -2,7 +2,6 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from stravalib import Client
 from flask_login import LoginManager
 
 from config import Config
@@ -15,9 +14,7 @@ bootstrap = Bootstrap(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'index'
 
-# Get Strava Oauth URL
-client = Client()
-OAUTH_URL = client.authorization_url(client_id=Config.CLIENT_ID, redirect_uri=(Config.EXTERNAL_URL + '/auth'),
-                                     scope='write')
+from app.webhooks import bp as webhooks_bp
+app.register_blueprint(webhooks_bp)
 
 from app import routes, models
