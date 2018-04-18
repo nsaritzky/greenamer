@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{%  block app_content %}
+<a href="https://www.strava.com/oauth/authorize?client_id=24713&response_type=code&redirect_uri=https://99d09f7a.ngrok.io/auth">
+    <p align="center"><img src="{{ url_for('static', filename='btn_strava_connectwith_orange.svg') }}", alt="Connect With Strava">
+    </p>
+</a>
+{%  endblock %}

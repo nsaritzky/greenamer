@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+	<h1>Rules</h1>
+    {% for rule in current_user.rules.all() %}
+        <div class="row">
+            <div class="col-xs-3">
+                {{ rule.address }}
+            </div>
+            <div class="col-xs-3">
+                {{ rule.time.strftime('%As at %I:%M%p') }}
+            </div>
+            <div class="col-xs-2">
+                <button type="button" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    {% endfor %}
+    <div class="row border border-danger">
+{#        {%  for rule in current_user.rules.all() %}#}
+{#            <div class="col-md-4">#}
+{#                {{ rule.activity_name }}#}
+{#		    </div>#}
+{#        {%  endfor %}#}
+        <div class="col-md">
+            {{ form.csrf_token }}
+            {{ wtf.quick_form(form, form_type="inline")}}
+        </div>
+    </div>
+{% endblock %}
