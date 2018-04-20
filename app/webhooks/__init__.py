@@ -2,4 +2,4 @@ from flask import Blueprint
 
 bp = Blueprint('webhooks', __name__)
 
-from app.webhooks import handler
+from app.webhooks import handler, routes

@@ -1,4 +1,4 @@
-from app import db, login_manager
+from app import db, login
 from flask_login import UserMixin
 from stravalib import Client
 from config import Config
@@ -32,10 +32,13 @@ class User(UserMixin, db.Model):
     def resolve_webhook(self, object_id: int):
         client = Client(access_token=self.access_token)
         activity = client.get_activity(activity_id=object_id)
+        # The Strava API doesn't give enough precision in its start latitude and longitude values, so we have
+        # to call the raw stream of points to get what we need.
+        points = client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
+        activity_start = points[0]
         for rule in self.rules.all():
-            if rule.check_time(start_time=activity.start_date_local) and rule.check_distance(start_point=(
-                    activity.start_longitude, activity.start_latitude)):
-                client.update_activity(name=rule.activity_name)
+            if rule.check_time(start_time=activity.start_date_local) and rule.check_distance(start_point=activity_start):
+                client.update_activity(activity_id=object_id, name=rule.activity_name)
                 logging.info('Activity {} renamed to {} for {}'.format(activity.id, rule.activity_name, self))
 
     def __repr__(self):
@@ -67,6 +70,6 @@ class Rule(db.Model):
         return 'Location: ({}, {}), Title: {}, User: {}'.format(self.lat, self.lng, self.activity_name, self.user_id)
 
 
-@login_manager.user_loader
+@login.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))

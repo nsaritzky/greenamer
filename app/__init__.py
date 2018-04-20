@@ -6,15 +6,28 @@ from flask_login import LoginManager
 
 from config import Config
 
-app = Flask(__name__)
-app.config.from_object(Config)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-bootstrap = Bootstrap(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'index'
+db = SQLAlchemy()
+migrate = Migrate()
+bootstrap = Bootstrap()
+login = LoginManager()
+login.login_view = 'index'
 
-from app.webhooks import bp as webhooks_bp
-app.register_blueprint(webhooks_bp)
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
 
-from app import routes, models
+    db.init_app(app)
+    migrate.init_app(app, db)
+    login.init_app(app)
+    bootstrap.init_app(app)
+
+    from app.webhooks import bp as webhooks_bp
+    app.register_blueprint(webhooks_bp)
+
+    from app.main import bp as main_bp
+    app.register_blueprint(main_bp)
+
+    return app
+
+from app import models
+from app.main import routes

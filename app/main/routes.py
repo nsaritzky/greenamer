@@ -5,10 +5,12 @@ from flask_login import current_user, login_user
 from flask_login import login_required
 from stravalib import Client
 
-from app import app, db
+from app import db
 from app.forms import RuleForm
 from app.models import User
 from config import Config
+
+from app.main import bp
 
 # I'm'a make a commit
 
@@ -19,18 +21,18 @@ DISTANCE_DELTA = .25
 ARBITRARY_MONDAY = date(2018, 4, 16)
 
 
-@app.route('/')
-@app.route('/index')
+@bp.route('/')
+@bp.route('/index')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('rules'))
+        return redirect(url_for('main.rules'))
     OAUTH_URL = Config.OAUTH_URL
     print(OAUTH_URL)
 
     return render_template('index.html', title='Home')
 
 
-@app.route('/login')
+@bp.route('/login')
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -38,7 +40,7 @@ def login():
     return render_template('login.html', title='Sign In')
 
 
-@app.route('/auth')
+@bp.route('/auth')
 def auth():
     access_denied = (request.args.get('error') == 'access_denied')
 
@@ -65,7 +67,7 @@ def auth():
     return redirect('/rules')
 
 
-@app.route('/rules', methods=['GET', 'POST'])
+@bp.route('/rules', methods=['GET', 'POST'])
 @login_required
 def rules():
     form = RuleForm()
@@ -83,15 +85,3 @@ def rules():
     return render_template('rules.html', title='Rules', form=form)
 
 
-@app.route('/webhook_handler', methods=['GET', 'POST'])
-def webhook_handler():
-    logging.debug(request.data)
-    data = request.get_json()
-    if 'hub.verify' in data:
-        if data['hub.verify'] == Config.WEBHOOK_TOKEN:
-            return '{"hub.challenge":"' + data['hub.challenge'] + '"}', 200
-    if data['aspect_type'] == 'create':
-        athlete: User = User.query.get(data['owner_id'])
-        athlete.resolve_webhook(data['object_id'])
-
-        return 'hi', 200
