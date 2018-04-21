@@ -1,0 +1,6 @@
+.idea/
+app/static/
+.env
+app.db
+venv/
+__pycache__/
