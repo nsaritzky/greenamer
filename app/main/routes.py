@@ -26,18 +26,7 @@ ARBITRARY_MONDAY = date(2018, 4, 16)
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('main.rules'))
-    OAUTH_URL = Config.OAUTH_URL
-    print(OAUTH_URL)
-
-    return render_template('index.html', title='Home')
-
-
-@bp.route('/login')
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-
-    return render_template('login.html', title='Sign In')
+    return render_template('index.html', title='Home', redirect=Config.OAUTH_URL)
 
 
 @bp.route('/auth')

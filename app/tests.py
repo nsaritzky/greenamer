@@ -40,6 +40,7 @@ class RuleModelCase(unittest.TestCase):
                     activity_name='test')
         rule = u.rules.one()
         self.assertTrue(rule.check_distance((47.67986, -122.32724)))
+        self.assertFalse(rule.check_distance((47.6205131, -122.349303598832)))
 
     def test_check_time(self):
         u = User(id=1, first_name='joe')
@@ -49,6 +50,18 @@ class RuleModelCase(unittest.TestCase):
                     activity_name='test')
         rule = u.rules.one()
         self.assertTrue(rule.check_time(datetime(2018, 4, 26, 5, 20)))
+
+    # def test_resolve_webhook(self):
+    #     u = User(id=1, first_name='joe')
+    #     db.session.add(u)
+    #     u.make_rule(address='7100 East Green Lake Drive North, Seattle, WA',
+    #                 day_and_time=datetime(2018, 4, 19, 5, 30),
+    #                 activity_name='test1')
+    #     u.make_rule(address='Blue Moon Burgers, Seattle WA',
+    #                 day_and_time=datetime(2018, 4, 20, 6, 00),
+    #                 activity_name='FLUR')
+
+
 
     # def test_check_resolver(self):
     #     u = User(id=1,first_name='joe')

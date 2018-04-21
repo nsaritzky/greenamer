@@ -12,18 +12,16 @@ import requests
 def webhook_handler():
     logging.debug(request.data)
     if request.method == 'GET':
-        print('method is get')
-        print(request.args.get('hub.verify_token'))
         if request.args.get('hub.verify_token') == Config.WEBHOOK_TOKEN:
-            payload = {'hub.challenge' : request.args.get('hub.challenge')}
+            payload = {'hub.challenge': request.args.get('hub.challenge')}
             requests.get('https://api.strava.com/api/v3/push_subscriptions', params=payload)
             return '', 200
     elif request.method == 'POST':
-        print(request.data)
+        logging.debug(request.data)
         data = request.get_json()
         if data['aspect_type'] == 'create':
             athlete: User = User.query.get(data['owner_id'])
             athlete.resolve_webhook(data['object_id'])
-            print('I got an activity!')
+            logging.info('Strava webhook received: User {}, Activity {}'.format(athlete.id, data['object_d']))
             return '', 200
     return '', 200

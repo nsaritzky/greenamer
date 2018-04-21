@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {%  block app_content %}
-{#    TODO tie the OAUTH URL to a config variable#}
-<a href="https://www.strava.com/oauth/authorize?scope=write&client_id=24713&response_type=code&redirect_uri=http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/auth">
+<a href="{{ redirect }}">
     <p align="center"><img src="{{ url_for('static', filename='btn_strava_connectwith_orange.svg') }}", alt="Connect With Strava">
     </p>
 </a>
