@@ -18,7 +18,7 @@ login.login_view = 'index'
 
 
 def create_app(config_class=Config):
-    app = Flask(__name__, static_folder='http://' + Config.S3_BUCKET_NAME + 's3.amazonaws.com/static')
+    app = Flask(__name__)
     app.config.from_object(config_class)
 
     db.init_app(app)

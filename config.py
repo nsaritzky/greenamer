@@ -15,11 +15,12 @@ class Config(object):
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
     S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
     CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+    STATIC_URL = os.getenv('STATIC_URL')
     WEBHOOK_TOKEN = os.getenv('WEBHOOK_TOKEN')
     SERVER_NAME = os.getenv('SERVER_NAME')
     if SERVER_NAME is not None:
         redirect_url = SERVER_NAME
     else:
         redirect_url = 'http://localhost:5000'
-    OAUTH_URL = 'https://www.strava.com/oauth/authorize?client_id=24713&response_type=code&redirect_uri={0}/auth'.format(
+    OAUTH_URL = 'https://www.strava.com/oauth/authorize?client_id=24713&response_type=code&redirect_uri=http://{0}/auth'.format(
         redirect_url)
