@@ -26,4 +26,4 @@ def webhook_handler():
             athlete.resolve_webhook(data['object_id'])
             print('I got an activity!')
             return '', 200
-    return 200
+    return '', 200
