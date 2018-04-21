@@ -6,6 +6,7 @@ from flask import url_for
 from datetime import datetime, timedelta
 from geopy.distance import distance
 from geopy.geocoders import Nominatim
+import requests
 import logging
 
 
@@ -15,9 +16,15 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String)
     rules = db.relationship('Rule', backref='user', lazy='dynamic')
 
-    def subscribe(self):
-        Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
-                                   callback_url=url_for('webhook_handler'))
+    @staticmethod
+    def subscribe():
+        payload = {'client_id' : Config.CLIENT_ID,
+                   'client_secret' : Config.CLIENT_SECRET,
+                   'callback_url' : 'http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler',
+                   'verify_token' : Config.WEBHOOK_TOKEN}
+        requests.post('https://api.strava.com/api/v3/push_subscriptions', data = payload)
+        # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
+        #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
 
     def make_rule(self, address: str, day_and_time: datetime, activity_name: str):
         geolocator = Nominatim(timeout=10)
@@ -31,18 +38,19 @@ class User(UserMixin, db.Model):
 
     def resolve_webhook(self, object_id: int):
         client = Client(access_token=self.access_token)
-        activity = client.get_activity(activity_id=object_id)
+        activity = client.get_activity(object_id)
         # The Strava API doesn't give enough precision in its start latitude and longitude values, so we have
         # to call the raw stream of points to get what we need.
         points = client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
-        activity_start = points[0]
+        activity_start = points['latlng'].data[0]
         for rule in self.rules.all():
             if rule.check_time(start_time=activity.start_date_local) and rule.check_distance(start_point=activity_start):
-                client.update_activity(activity_id=object_id, name=rule.activity_name)
+                client.update_activity(object_id, name=rule.activity_name)
                 logging.info('Activity {} renamed to {} for {}'.format(activity.id, rule.activity_name, self))
+            else: print(activity.name)
 
     def __repr__(self):
-        return '<User {}>'.format(self.id)
+        return '<User {}; First Name: {}>'.format(self.id, self.first_name)
 
 
 class Rule(db.Model):
