@@ -12,6 +12,8 @@ class Config(object):
     TESTING = False
     SECRET_KEY = os.getenv('SECRET_KEY')
     CLIENT_ID = 24713
+    LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
+    S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME')
     CLIENT_SECRET = os.getenv('CLIENT_SECRET')
     WEBHOOK_TOKEN = os.getenv('WEBHOOK_TOKEN')
     SERVER_NAME = os.getenv('SERVER_NAME')
