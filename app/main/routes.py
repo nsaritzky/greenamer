@@ -39,16 +39,22 @@ def auth():
     code = request.args.get('code')
 
     client = Client()
-    token = client.exchange_code_for_token(client_id=Config.CLIENT_ID,
-                                           client_secret=Config.CLIENT_SECRET,
-                                           code=code)
-    client = Client(access_token=token)
-    athlete = client.get_athlete()
+    if not Config.TESTING:
+        token = client.exchange_code_for_token(client_id=Config.CLIENT_ID,
+                                               client_secret=Config.CLIENT_SECRET,
+                                               code=code)
+        client = Client(access_token=token)
+        athlete = client.get_athlete()
+        user_id = athlete.id
+        first_name = athlete.firstname
+    else:
+        token = 'token'
+        user_id = 1
+        first_name = 'joe'
 
-    if User.query.get(athlete.id) is None:
-        print('User {} not found, trying to add to db'.format(athlete.id))
+    if User.query.get(user_id) is None:
         # noinspection PyArgumentList
-        db.session.add(User(id=athlete.id, first_name=athlete.firstname, access_token=token))
+        db.session.add(User(id=user_id, first_name=first_name, access_token=token))
         db.session.commit()
         logging.info('New user added: {}'.format(athlete.id))
     login_user(User.query.get(athlete.id), remember=True)
@@ -72,5 +78,3 @@ def rules():
         return redirect('/index')
 
     return render_template('rules.html', title='Rules', form=form)
-
-
