@@ -50,7 +50,7 @@ class User(UserMixin, db.Model):
         # TODO: If any of the rules for the user overlap, this check will just go with whichever one it happens to
         # finds first. That's probably not a great way to do it.
         for rule in self.rules.all():
-            current_app.loggerdebug('Checking {} against activity {}'.format(rule, object_id))
+            current_app.logger.debug('Checking {} against activity {}'.format(rule, object_id))
             if rule.check_rule(activity_start, activity.start_date_local):
                 if not current_app.config.TESTING:
                     client.update_activity(object_id, name=rule.activity_name)
