@@ -36,30 +36,8 @@ def auth():
         return redirect('/index')
 
     code = request.args.get('code')
-
-    client = Client()
-    if not Config.TESTING:
-        token = client.exchange_code_for_token(client_id=Config.CLIENT_ID,
-                                               client_secret=Config.CLIENT_SECRET,
-                                               code=code)
-        client = Client(access_token=token)
-        athlete = client.get_athlete()
-        user_id = athlete.id
-        first_name = athlete.firstname
-    else:
-        token = 'token'
-        user_id = 1
-        first_name = 'joe'
-
-    if User.query.get(user_id) is None:
-        # noinspection PyArgumentList
-        db.session.add(User(id=user_id, first_name=first_name, access_token=token))
-        db.session.commit()
-        current_app.logger.info('New user added: {}'.format(user_id))
-    else:
-        current_app.logger.info('User {} already found; logging in redirecting to dashboard'.format(user_id))
-    login_user(User.query.get(user_id), remember=True)
-
+    user = User.add_user(code)
+    login_user(user, remember=True)
     return redirect('/rules')
 
 
@@ -79,6 +57,12 @@ def rules():
         return redirect('/index')
 
     return render_template('rules.html', title='Rules', form=form)
+
+
+# @bp.route('/delete')
+# @login_required
+# def delete():
+
 
 
 @bp.route('/logout')

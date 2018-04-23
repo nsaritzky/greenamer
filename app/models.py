@@ -19,6 +19,33 @@ class User(UserMixin, db.Model):
     rules = db.relationship('Rule', backref='user', lazy='dynamic')
 
     @staticmethod
+    def add_user(code: str):
+        client = Client()
+        if not Config.TESTING:
+            token = client.exchange_code_for_token(client_id=Config.CLIENT_ID,
+                                                   client_secret=Config.CLIENT_SECRET,
+                                                   code=code)
+            client = Client(access_token=token)
+            athlete = client.get_athlete()
+            user_id = athlete.id
+            first_name = athlete.firstname
+        else:
+            token = 'token'
+            user_id = 1
+            first_name = 'joe'
+
+        # noinspection PyArgumentList
+        user = User(id=user_id, first_name=first_name, access_token=token)
+
+        if User.query.get(user_id) is None:
+            db.session.add(user)
+            db.session.commit()
+            current_app.logger.info('New user added: {}'.format(user_id))
+        else:
+            current_app.logger.info('User {} already found; logging in redirecting to dashboard'.format(user_id))
+        return user
+
+    @staticmethod
     def subscribe():
         payload = {'client_id' : Config.CLIENT_ID,
                    'client_secret' : Config.CLIENT_SECRET,
