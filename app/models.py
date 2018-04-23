@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 from geopy.distance import distance
 from geopy.geocoders import Nominatim
 import requests
-import logging
 
 
 class User(UserMixin, db.Model):
@@ -37,7 +36,7 @@ class User(UserMixin, db.Model):
                         activity_name=activity_name)
         db.session.add(new_rule)
         db.session.commit()
-        logging.info('New rule added: {}'.format(new_rule))
+        current_app.loggerinfo('New rule added: {}'.format(new_rule))
 
     def resolve_webhook(self, object_id: int) -> str:
         client = Client(access_token=self.access_token)
@@ -46,16 +45,16 @@ class User(UserMixin, db.Model):
         # to call the raw stream of points to get what we need.
         points = client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
         activity_start = points['latlng'].data[0]
-        logging.debug('Webhook event received: Activity {}, User {}, Starting point {}, Starting time {}'.format(
+        current_app.loggerdebug('Webhook event received: Activity {}, User {}, Starting point {}, Starting time {}'.format(
             object_id, self.id, activity_start, activity.start_date_local))
         # TODO: If any of the rules for the user overlap, this check will just go with whichever one it happens to
         # finds first. That's probably not a great way to do it.
         for rule in self.rules.all():
-            logging.debug('Checking {} against activity {}'.format(rule, object_id))
+            current_app.loggerdebug('Checking {} against activity {}'.format(rule, object_id))
             if rule.check_rule(activity_start, activity.start_date_local):
                 if not current_app.config.TESTING:
                     client.update_activity(object_id, name=rule.activity_name)
-                logging.info('Activity {} renamed to {} for {}'.format(activity.id, rule.activity_name, self))
+                current_app.logger.info('Activity {} renamed to {} for {}'.format(activity.id, rule.activity_name, self))
                 return rule.activity_name
         return ''
 

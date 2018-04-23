@@ -7,6 +7,7 @@
 {% block navbar %}
     <nav class="navbar navbar-default">
         Hi, {{ current_user.first_name }}
+            <a href="{{ url_for('main.logout') }}">Logout</a>
     </nav>
 {% endblock %}
 

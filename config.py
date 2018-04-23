@@ -19,8 +19,8 @@ class Config(object):
     WEBHOOK_TOKEN = os.getenv('WEBHOOK_TOKEN')
     SERVER_NAME = os.getenv('SERVER_NAME')
     if SERVER_NAME is not None:
-        redirect_url = SERVER_NAME
+        redirect_url = 'http://' + SERVER_NAME
     else:
         redirect_url = 'http://localhost:5000'
-    OAUTH_URL = 'https://www.strava.com/oauth/authorize?client_id=24713&response_type=code&redirect_uri=http://{0}/auth'.format(
+    OAUTH_URL = 'https://www.strava.com/oauth/authorize?client_id=24713&response_type=code&redirect_uri={0}/auth'.format(
         redirect_url)
