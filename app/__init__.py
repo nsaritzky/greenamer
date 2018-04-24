@@ -1,6 +1,7 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from flask_cdn import CDN
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -16,10 +17,13 @@ bootstrap = Bootstrap()
 login = LoginManager()
 login.login_view = 'index'
 
+cdn = CDN()
+
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    cdn.init_app(app)
 
     db.init_app(app)
     migrate.init_app(app, db)

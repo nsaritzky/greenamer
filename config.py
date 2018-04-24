@@ -24,3 +24,5 @@ class Config(object):
         redirect_url = 'http://localhost:5000'
     OAUTH_URL = 'https://www.strava.com/oauth/authorize?client_id=24713&response_type=code&redirect_uri={0}/auth'.format(
         redirect_url)
+
+    CDN_DOMAIN = 'greenamer.s3.amazonaws.com'
