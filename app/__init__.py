@@ -24,6 +24,8 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     cdn.init_app(app)
+    if not app.config['CDN_DOMAIN']:
+        logging.warning('CDN_DOMAIN not set')
 
     db.init_app(app)
     migrate.init_app(app, db)

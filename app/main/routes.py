@@ -1,6 +1,6 @@
 from datetime import datetime, date, timedelta
 
-from flask import render_template, redirect, url_for, request, current_app
+from flask import render_template, redirect, request, current_app
 from flask_login import current_user, login_user, logout_user
 from flask_login import login_required
 from stravalib import Client
@@ -10,6 +10,7 @@ from app.forms import RuleForm
 from app.models import User
 from config import Config
 
+from flask_cdn import url_for
 from app.main import bp
 
 # I'm'a make a commit
