@@ -1,3 +1,4 @@
+.python-version
 .idea/
 app/static/
 .env
@@ -5,3 +6,4 @@ app.db
 venv/
 __pycache__/
 logs/
+*.py[cod]
