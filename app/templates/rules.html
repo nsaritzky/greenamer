@@ -5,7 +5,7 @@
     <div class="container">
         <h1>Rules</h1>
             {% for rule in current_user.rules.all() %}
-                <div class="row align-items-start justify-content-end">
+                <div class="row align-items-start justify-content-start">
                         <div class="col">
                             {{ rule.address }}
                         </div>
@@ -15,8 +15,13 @@
                         <div>
                             {{ rule.activity_name }}
                         </div>
-                        <div class="col">
-                            <button type="button" class="btn btn-danger">Delete</button>
+                        <div class="float-right">
+                            <div class="btn-group" role="group" aria-label="Edit or delete rule">
+                                <button type="button" class="btn btn-primary">Edit</button>
+                                <button type="button" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                 </div>
             {% endfor %}
