@@ -15,7 +15,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 bootstrap = Bootstrap()
 login = LoginManager()
-login.login_view = 'index'
+login.login_view = 'main.index'
 
 cdn = CDN()
 
