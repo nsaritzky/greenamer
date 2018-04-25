@@ -11,7 +11,8 @@
     <title>{% if title %}{{ title }}{% endif %} - Greenamer</title>
 
        {#Font Awesome CSS#}
-    <link href="{{ url_for('static', filename='vendor/fontawesome-all.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+
 
     <!-- Bootstrap core CSS -->
     <link href="http://greenamer.s3.amazonaws.com/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -54,7 +55,7 @@
                   </a>
                 </li>
             {% else %}
-                  Hi, {{ current_user.first_name }}. 
+                <p class="text-light">Hi, {{ current_user.first_name }} </p>
             {% endif %}
 {#            <li class="nav-item">#}
 {#              <a class="nav-link" href="#">Services</a>#}
