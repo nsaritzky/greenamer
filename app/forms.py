@@ -1,9 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FormField, \
+from wtforms import StringField, widgets, \
     SubmitField, SelectField, BooleanField, IntegerField, DateField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms_components import TimeField
 from geopy.geocoders import Nominatim
+from app.models import Rule
+from flask_login import current_user
 
 
 # class LoginForm(FlaskForm):
@@ -15,6 +17,10 @@ from geopy.geocoders import Nominatim
 #     hour = IntegerField('Hour')
 #     minute = IntegerField('Minute')
 #     am_pm = SelectField(choices=[('am', 'AM'), ('pm', 'PM')])
+
+class DeleteForm(FlaskForm):
+    submit = SubmitField('Delete')
+    rule_id = IntegerField('id', widget=widgets.HiddenInput)
 
 
 class RuleForm(FlaskForm):

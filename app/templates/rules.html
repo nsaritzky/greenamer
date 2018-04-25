@@ -5,22 +5,23 @@
     <div class="container">
         <h1>Rules</h1>
             {% for rule in current_user.rules.all() %}
-                <div class="row align-items-start justify-content-start">
+                <div class="row align-items-start justify-content-start bg-light mb-1">
                         <div class="col">
                             {{ rule.address }}
                         </div>
                         <div class="col">
                             {{ rule.time.strftime('%As at %I:%M%p') }}
                         </div>
-                        <div>
+                        <div class="col">
                             {{ rule.activity_name }}
                         </div>
                         <div class="float-right">
                             <div class="btn-group" role="group" aria-label="Edit or delete rule">
-                                <button type="button" class="btn btn-primary">Edit</button>
-                                <button type="button" class="btn btn-danger">
-                                    <i class="fas fa-trash"></i>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i>
                                 </button>
+{#                                {{ delete.submit(class_='btn btn-danger') }}#}
+{#                                {{ DeleteForm(rule) }}#}
                             </div>
                         </div>
                 </div>
