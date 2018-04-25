@@ -47,11 +47,11 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def subscribe():
-        payload = {'client_id' : Config.CLIENT_ID,
-                   'client_secret' : Config.CLIENT_SECRET,
-                   'callback_url' : 'http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler',
-                   'verify_token' : Config.WEBHOOK_TOKEN}
-        requests.post('https://api.strava.com/api/v3/push_subscriptions', data = payload)
+        payload = {'client_id': Config.CLIENT_ID,
+                   'client_secret': Config.CLIENT_SECRET,
+                   'callback_url': 'http://' + Config.SERVER_NAME,
+                   'verify_token': Config.WEBHOOK_TOKEN}
+        requests.post('https://api.strava.com/api/v3/push_subscriptions', data=payload)
         # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
         #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
 
