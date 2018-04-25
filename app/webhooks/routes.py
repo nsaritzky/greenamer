@@ -14,8 +14,10 @@ def webhook_handler():
     if request.method == 'GET':
         current_app.logger.info('Webhook subscription request got a response')
         if request.args.get('hub.verify_token') == Config.WEBHOOK_TOKEN:
-            requests.get('https://api.strava.com/api/v3/push_subscriptions?{"hub.challenge":"' +
-                         request.args.get('hub.challenge') + '"}')
+            response_url = 'https://api.strava.com/api/v3/push_subscriptions?{"hub.challenge":"'\
+                           + request.args.get('hub.challenge') + '"}'
+            current_app.logging.info(response_url)
+            requests.get(response_url)
             return '', 200
     elif request.method == 'POST':
         current_app.logger.debug(request.data)
