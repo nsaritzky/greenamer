@@ -6,7 +6,7 @@ from flask_login import login_required
 from stravalib import Client
 
 from app import db
-from app.forms import RuleForm, DeleteForm
+from app.forms import RuleForm
 from app.models import User, Rule
 from config import Config
 
@@ -46,7 +46,6 @@ def auth():
 @login_required
 def rules():
     form = RuleForm()
-    delete = DeleteForm()
 
     # current_app.logger.warning(form.errors)
     if form.validate_on_submit():
@@ -58,7 +57,7 @@ def rules():
         current_app.logger.debug('Rule form validated')
         return redirect('/index')
 
-    return render_template('rules.html', title='Rules', form=form, delete=delete)
+    return render_template('rules.html', title='Rules', form=form)
 
 
 # @bp.route('/delete')
