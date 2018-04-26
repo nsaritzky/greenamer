@@ -27,7 +27,10 @@ def webhook_handler():
         data = request.get_json()
         if data['aspect_type'] == 'create':
             athlete: User = User.query.get(data['owner_id'])
-            athlete.resolve_webhook(data['object_id'])
-            current_app.logger.info('Strava webhook received: User {}, Activity {}'.format(athlete.id, data['object_d']))
+            try:
+                athlete.resolve_webhook(data['object_id'])
+                current_app.logger.info('Strava webhook received: User {}, Activity {}'.format(athlete.id, data['object_id']))
+            except AttributeError:
+                current_app.logger.warning('You got a webhook for [], but they weren\'t in the database'.format(athlete))
             return '', 200
     return '', 200
