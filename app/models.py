@@ -55,18 +55,13 @@ class User(UserMixin, db.Model):
         # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
         #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
 
-    def make_rule(self, address: str, day_and_time: datetime, activity_name: str, record=True):
+    def make_rule(self, address: str, day_and_time: datetime, activity_name: str):
         geolocator = Nominatim(timeout=10)
         location = geolocator.geocode(address)
         new_rule = Rule(lat=location.latitude, lng=location.longitude,
                         address=address, time=day_and_time, user_id=self.id,
                         activity_name=activity_name)
-        if record:
-            db.session.add(new_rule)
-            db.session.commit()
-            current_app.logger.info('New rule added: {}'.format(new_rule))
-        else:
-            return new_rule
+        return new_rule
 
     def check_rules_for_duplicate(self, rule_to_check) -> bool:
         for rule in self.rules:
@@ -108,6 +103,12 @@ class Rule(db.Model):
 
     # Checks if a given timestamp (in units of seconds from Epoch) is within 1,000 seconds of the time specified
     # in the rule, modulo 1 week
+
+    def record(self):
+        db.session.add(self)
+        db.session.commit()
+        current_app.logger.info('New rule added: {}'.format(self))
+
     def check_time(self, start_time=None, delta=timedelta(seconds=1000), rule=None) -> bool:
         if rule is None:
             difference = start_time - self.time

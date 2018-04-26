@@ -27,11 +27,11 @@ ARBITRARY_MONDAY = date(2018, 4, 16)
 
 class DeleteForm(FlaskForm):
     submit = SubmitField('Delete')
-    id = IntegerField('id', widget=widgets.HiddenInput())
+    id = IntegerField('id', widget=widgets.HiddenInput(), validators=[DataRequired()])
 
 
 class RuleForm(FlaskForm):
-    location = StringField('Location', render_kw={'placeholder': 'Address'})
+    location = StringField('Location', validators=[DataRequired()], render_kw={'placeholder': 'Address'})
     daysOfTheWeek = [(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'),
                      (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')]
     days = SelectField('Days', choices=daysOfTheWeek, coerce=int, validators=[DataRequired()])
@@ -41,27 +41,31 @@ class RuleForm(FlaskForm):
                                 render_kw={'placeholder': 'Activity name'})
     submit = SubmitField('New Rule')
 
-    def validate_location(self, location):
-        if location is None:
-            raise ValidationError('Location field was left empty')
+    def validate_location(self, field):
+        geolocator = Nominatim(timeout=10)
+        current_app.logger.debug(field.data)
+        if geolocator.geocode(field.data) is None:
+            raise ValidationError('Could not resolve address; please check it and try again.')
         else:
-            geolocator = Nominatim(timeout=10)
-            current_app.logger.debug(location.data)
-            if geolocator.geocode(location.data) is None:
-                raise ValidationError('Could not resolve address; please check it and try again.')
-
-
-    def validate_time(self, field):
-        if self.location.data is '' or self.days.data is None or field.data is None:
-            raise ValidationError('Something was left blank')
-        else:
-            current_app.logger.debug(self.location.data, self.days.data, field.data)
+            current_app.logger.debug(field.data, self.days.data, self.time.data)
             rule_day = timedelta(days=self.days.data)
-            rule_time = field.data
+            rule_time = self.time.data
             provisional_rule = current_user.make_rule(address=self.location.data,
                                                       day_and_time=datetime.combine((ARBITRARY_MONDAY + rule_day), rule_time),
-                                                      activity_name='',
-                                                      record=False)
+                                                      activity_name='')
             if current_user.check_rules_for_duplicate(provisional_rule):
                 raise ValidationError('This overlaps with an already-existing rule')
+
+    # def validate_time(self, field):
+    #     if self.location.data is '' or self.days.data is None or field.data is None:
+    #         raise ValidationError('Something was left blank')
+    #     else:
+    #         current_app.logger.debug(self.location.data, self.days.data, field.data)
+    #         rule_day = timedelta(days=self.days.data)
+    #         rule_time = field.data
+    #         provisional_rule = current_user.make_rule(address=self.location.data,
+    #                                                   day_and_time=datetime.combine((ARBITRARY_MONDAY + rule_day), rule_time),
+    #                                                   activity_name='')
+    #         if current_user.check_rules_for_duplicate(provisional_rule):
+    #             raise ValidationError('This overlaps with an already-existing rule')
 

@@ -18,12 +18,12 @@ class RuleModelCase(unittest.TestCase):
         db.create_all()
         u = User(id=1, first_name='joe')
         db.session.add(u)
-        u.make_rule(address='7100 East Green Lake Drive North, Seattle, WA',
-                    day_and_time=datetime(2018, 4, 19, 5, 30),
-                    activity_name='WUW')
-        u.make_rule(address='Blue Moon Burgers Fremont, Seattle, WA',
-                    day_and_time=datetime(2018, 4, 27, 6, 00),
-                    activity_name='FLUR')
+        (u.make_rule(address='7100 East Green Lake Drive North, Seattle, WA',
+                     day_and_time=datetime(2018, 4, 19, 5, 30),
+                     activity_name='WUW')).record()
+        (u.make_rule(address='Blue Moon Burgers Fremont, Seattle, WA',
+                     day_and_time=datetime(2018, 4, 27, 6, 00),
+                     activity_name='FLUR')).record()
 
     def tearDown(self):
         db.session.remove()
