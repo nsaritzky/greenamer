@@ -55,15 +55,18 @@ class User(UserMixin, db.Model):
         # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
         #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
 
-    def make_rule(self, address: str, day_and_time: datetime, activity_name: str):
+    def make_rule(self, address: str, day_and_time: datetime, activity_name: str, record=True):
         geolocator = Nominatim(timeout=10)
         location = geolocator.geocode(address)
         new_rule = Rule(lat=location.latitude, lng=location.longitude,
                         address=address, time=day_and_time, user_id=self.id,
                         activity_name=activity_name)
-        db.session.add(new_rule)
-        db.session.commit()
-        current_app.logger.info('New rule added: {}'.format(new_rule))
+        if record:
+            db.session.add(new_rule)
+            db.session.commit()
+            current_app.logger.info('New rule added: {}'.format(new_rule))
+        else:
+            return new_rule
 
     def check_rules_for_duplicate(self, rule_to_check) -> bool:
         for rule in self.rules:
@@ -80,8 +83,6 @@ class User(UserMixin, db.Model):
         activity_start = points['latlng'].data[0]
         current_app.logger.debug('Webhook event received: Activity {}, User {}, Starting point {}, Starting time {}'.format(
             object_id, self.id, activity_start, activity.start_date_local))
-        # TODO: If any of the rules for the user overlap, this check will just go with whichever one it happens to
-        # finds first. That's probably not a great way to do it.
         for rule in self.rules.all():
             current_app.logger.debug('Checking {} against activity {}'.format(rule, object_id))
             if rule.check_rule(activity_start, activity.start_date_local):
@@ -131,8 +132,13 @@ class Rule(db.Model):
         else:
             return self.check_time(rule=rule) and self.check_distance(rule=rule)
 
+    def delete_rule(self):
+        db.session.delete(self)
+        db.session.commit()
+        current_app.logger.info('{} deleted'.format(self))
+
     def __repr__(self):
-        return '<Location: ({}, {}), Title: {}, User: {}>'.format(self.lat, self.lng, self.activity_name, self.user_id)
+        return '<Location: , Title: {}, User: {}>'.format(self.address, self.activity_name, self.user_id)
 
 
 @login.user_loader

@@ -1,12 +1,12 @@
 from datetime import datetime, date, timedelta
 
-from flask import render_template, redirect, request, current_app
+from flask import render_template, redirect, request, current_app, g
 from flask_login import current_user, login_user, logout_user
 from flask_login import login_required
 from stravalib import Client
 
 from app import db
-from app.forms import RuleForm
+from app.forms import RuleForm, DeleteForm
 from app.models import User, Rule
 from config import Config
 
@@ -46,8 +46,10 @@ def auth():
 @login_required
 def rules():
     form = RuleForm()
+    delete_forms = {rule.id: DeleteForm(obj=rule) for rule in current_user.rules}
 
-    # current_app.logger.warning(form.errors)
+    if form.errors is not {}:
+        current_app.logger.info(form.errors)
     if form.validate_on_submit():
         rule_day = timedelta(days=form.days.data)
         rule_time = form.time.data
@@ -57,7 +59,12 @@ def rules():
         current_app.logger.debug('Rule form validated')
         return redirect('/index')
 
-    return render_template('rules.html', title='Rules', form=form)
+    if DeleteForm().validate_on_submit():
+        g.rule = Rule.query.get(DeleteForm().id.data)
+        g.rule.delete_rule()
+        return redirect(url_for('main.rules'))
+
+    return render_template('rules.html', title='Rules', form=form, delete_forms=delete_forms)
 
 
 # @bp.route('/delete')

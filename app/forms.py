@@ -4,8 +4,15 @@ from wtforms import StringField, widgets, \
 from wtforms.validators import DataRequired, ValidationError
 from wtforms_components import TimeField
 from geopy.geocoders import Nominatim
+from flask import current_app
+from flask_login import current_user
 from app.models import Rule
 from flask_login import current_user
+from datetime import datetime, date, timedelta
+
+TIME_DELTA = timedelta(seconds=1000)  # How far away a Strava event can be from a defining rule to get renamed
+DISTANCE_DELTA = .25
+ARBITRARY_MONDAY = date(2018, 4, 16)
 
 
 # class LoginForm(FlaskForm):
@@ -20,7 +27,7 @@ from flask_login import current_user
 
 class DeleteForm(FlaskForm):
     submit = SubmitField('Delete')
-    rule_id = IntegerField('id', widget=widgets.HiddenInput)
+    id = IntegerField('id', widget=widgets.HiddenInput())
 
 
 class RuleForm(FlaskForm):
@@ -35,7 +42,26 @@ class RuleForm(FlaskForm):
     submit = SubmitField('New Rule')
 
     def validate_location(self, location):
-        geolocator = Nominatim(timeout=None)
-        print(location.data)
-        if geolocator.geocode(location.data) is None:
-            raise ValidationError('Could not resolve address; please check it and try again.')
+        if location is None:
+            raise ValidationError('Location field was left empty')
+        else:
+            geolocator = Nominatim(timeout=10)
+            current_app.logger.debug(location.data)
+            if geolocator.geocode(location.data) is None:
+                raise ValidationError('Could not resolve address; please check it and try again.')
+
+
+    def validate_time(self, field):
+        if self.location.data is '' or self.days.data is None or field.data is None:
+            raise ValidationError('Something was left blank')
+        else:
+            current_app.logger.debug(self.location.data, self.days.data, field.data)
+            rule_day = timedelta(days=self.days.data)
+            rule_time = field.data
+            provisional_rule = current_user.make_rule(address=self.location.data,
+                                                      day_and_time=datetime.combine((ARBITRARY_MONDAY + rule_day), rule_time),
+                                                      activity_name='',
+                                                      record=False)
+            if current_user.check_rules_for_duplicate(provisional_rule):
+                raise ValidationError('This overlaps with an already-existing rule')
+
