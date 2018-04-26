@@ -63,27 +63,33 @@ class User(UserMixin, db.Model):
                         activity_name=activity_name)
         db.session.add(new_rule)
         db.session.commit()
-        current_app.loggerinfo('New rule added: {}'.format(new_rule))
+        current_app.logger.info('New rule added: {}'.format(new_rule))
 
-    def resolve_webhook(self, object_id: int) -> str:
+    def check_rules_for_duplicate(self, rule_to_check) -> bool:
+        for rule in self.rules:
+            if rule.check_rule(rule=rule_to_check):
+                return True
+        return False
+
+    def resolve_webhook(self, object_id: int):
         client = Client(access_token=self.access_token)
         activity = client.get_activity(object_id)
         # The Strava API doesn't give enough precision in its start latitude and longitude values, so we have
         # to call the raw stream of points to get what we need.
         points = client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
         activity_start = points['latlng'].data[0]
-        current_app.loggerdebug('Webhook event received: Activity {}, User {}, Starting point {}, Starting time {}'.format(
+        current_app.logger.debug('Webhook event received: Activity {}, User {}, Starting point {}, Starting time {}'.format(
             object_id, self.id, activity_start, activity.start_date_local))
         # TODO: If any of the rules for the user overlap, this check will just go with whichever one it happens to
         # finds first. That's probably not a great way to do it.
         for rule in self.rules.all():
             current_app.logger.debug('Checking {} against activity {}'.format(rule, object_id))
             if rule.check_rule(activity_start, activity.start_date_local):
-                if not current_app.config.TESTING:
-                    client.update_activity(object_id, name=rule.activity_name)
+                # if not current_app.config.TESTING:
+                client.update_activity(object_id, name=rule.activity_name)
                 current_app.logger.info('Activity {} renamed to {} for {}'.format(activity.id, rule.activity_name, self))
-                return rule.activity_name
-        return ''
+                break  # No need to check any more activities
+                # return rule.activity_name
 
     def __repr__(self):
         return '<User {}; First Name: {}>'.format(self.id, self.first_name)
@@ -101,19 +107,29 @@ class Rule(db.Model):
 
     # Checks if a given timestamp (in units of seconds from Epoch) is within 1,000 seconds of the time specified
     # in the rule, modulo 1 week
-    def check_time(self, start_time: datetime, delta=timedelta(seconds=1000)) -> bool:
+    def check_time(self, start_time=None, delta=timedelta(seconds=1000), rule=None) -> bool:
+        if rule is None:
+            difference = start_time - self.time
+        else:
+            difference = rule.time - self.time
         week: timedelta = timedelta(days=7)
-        difference = start_time - self.time
         return ((difference % week) < delta) or ((-difference % week) < delta)
 
-    def check_distance(self, start_point, radius: float = .25) -> bool:
-        rule_point = (self.lat, self.lng)
-        return distance(start_point, rule_point).miles < radius
+    def check_distance(self, start_point=None, radius: float = .25, rule=None) -> bool:
+        if rule is None:
+            point_to_check = start_point
+        else:
+            point_to_check = (rule.lat, rule.lng)
+        return distance((self.lat, self.lng), point_to_check).miles < radius
 
     # The time and distance checks are being kept separate mostly for unit tests, but most of the time, they're used
     # together. So here's a function that combines them.
-    def check_rule(self, start_point, start_time: datetime, delta=timedelta(seconds=1000), radius: float = .25) -> bool:
-        return self.check_time(start_time, delta) and self.check_distance(start_point, radius)
+    def check_rule(self, start_point=None, start_time=None, delta=timedelta(seconds=1000), radius: float = .25,
+                   rule=None) -> bool:
+        if rule is None:
+            return self.check_time(start_time, delta) and self.check_distance(start_point, radius)
+        else:
+            return self.check_time(rule=rule) and self.check_distance(rule=rule)
 
     def __repr__(self):
         return '<Location: ({}, {}), Title: {}, User: {}>'.format(self.lat, self.lng, self.activity_name, self.user_id)
