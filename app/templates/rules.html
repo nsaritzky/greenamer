@@ -10,6 +10,18 @@
                             {{ rule.address }}
                         </div>
                         <div class="col">
+                            <button type="button"
+                                    class="btn"
+                                    data-toggle="popover"
+                                    data-html="true"
+                                    data-content="<img src={{ map_urls[rule.id] }}>">
+                            Map
+                            </button>
+                            <a id="popover-content({{ rule.id }})" style="display: none;">
+                                <img src="{{ map_urls[rule.id] }}">
+                            </a>
+                        </div>
+                        <div class="col">
                             {{ rule.time.strftime('%As at %I:%M%p') }}
                         </div>
                         <div class="col">

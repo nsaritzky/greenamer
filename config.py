@@ -26,3 +26,4 @@ class Config(object):
         redirect_url)
     CDN_DOMAIN = os.getenv('CDN_DOMAIN')
     CDN_TIMESTAMP = False
+    GOOGLE_MAPS_KEY = os.getenv('GOOGLE_MAPS_KEY')

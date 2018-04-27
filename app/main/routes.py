@@ -13,6 +13,8 @@ from config import Config
 from flask_cdn import url_for
 from app.main import bp
 
+from motionless import DecoratedMap, LatLonMarker
+
 # I'm'a make a commit
 
 TIME_DELTA = timedelta(seconds=1000)  # How far away a Strava event can be from a defining rule to get renamed
@@ -57,6 +59,12 @@ def rules():
     form = RuleForm()
     delete_forms = {rule.id: DeleteForm(obj=rule) for rule in current_user.rules}
 
+    map_images = {}
+    for rule in current_user.rules:
+        dmap = DecoratedMap(key=Config.GOOGLE_MAPS_KEY)
+        dmap.add_marker(LatLonMarker(rule.lat, rule.lng))
+        map_images[rule.id] = dmap.generate_url()
+
     # This is a hack to get the delete buttons to ignore submission of new rule forms. It is inelegant.
     if form.errors is not {}:
         current_app.logger.info(form.errors)
@@ -79,7 +87,7 @@ def rules():
 
     flash_errors(form)
 
-    return render_template('rules.html', title='Rules', form=form, delete_forms=delete_forms)
+    return render_template('rules.html', title='Rules', form=form, delete_forms=delete_forms, map_urls=map_images)
 
 
 # @bp.route('/delete')
