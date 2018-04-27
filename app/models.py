@@ -44,6 +44,7 @@ class User(UserMixin, db.Model):
             current_app.logger.info('New user added: {}'.format(user_id))
         else:
             u.access_token = token
+            db.session.commit()
             current_app.logger.info('User {} already found; updating token, logging in,'
                                     ' and redirecting to dashboard'.format(user_id))
         return user
