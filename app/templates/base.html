@@ -50,12 +50,18 @@
 {#            </li>#}
             {% if not current_user.is_anonymous %}
                 <li class="nav-item">
+                    <a class="nav-link">Hi, {{ current_user.first_name }}</a>
+                </li>
+
+                <li class="nav-item">
 {#                  <a class="nav-link" href="{{ redirect }}">#}
 {#                      <img src="http://greenamer.s3.amazonaws.com/static/btn_strava_connectwith_orange.svg" height="35" alt="Connect With Strava">#}
 {#                  </a>#}
                     <a class="nav-link" href="{{ url_for('main.rules') }}">Dashboard</a>
                 </li>
-                <p class="text-light">Hi, {{ current_user.first_name }} </p>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.logout') }}">Log out</a>
+                </li>
             {% endif %}
 {#            <li class="nav-item">#}
 {#              <a class="nav-link" href="#">Services</a>#}

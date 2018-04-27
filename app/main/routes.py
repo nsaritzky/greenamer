@@ -90,12 +90,6 @@ def rules():
     return render_template('rules.html', title='Rules', form=form, delete_forms=delete_forms, map_urls=map_images)
 
 
-# @bp.route('/delete')
-# @login_required
-# def delete():
-
-
-
 @bp.route('/logout')
 def logout():
     current_app.logger.debug('Logging out user {}'.format(current_user.id))
