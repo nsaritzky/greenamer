@@ -22,8 +22,8 @@ class Config(object):
         redirect_url = 'http://' + SERVER_NAME
     else:
         redirect_url = 'http://localhost:5000'
-    OAUTH_URL = 'https://www.strava.com/oauth/authorize?client_id=24713&response_type=code&redirect_uri={0}/auth'.format(
-        redirect_url)
+    OAUTH_URL = 'https://www.strava.com/oauth/authorize?client_id=24713&scope=write&response_type=code' \
+                '&redirect_uri={0}/auth'.format(redirect_url)
     CDN_DOMAIN = os.getenv('CDN_DOMAIN')
     CDN_TIMESTAMP = False
     GOOGLE_MAPS_KEY = os.getenv('GOOGLE_MAPS_KEY')

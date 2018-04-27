@@ -37,12 +37,15 @@ class User(UserMixin, db.Model):
         # noinspection PyArgumentList
         user = User(id=user_id, first_name=first_name, access_token=token)
 
-        if User.query.get(user_id) is None:
+        u = User.query.get(user_id)
+        if u is None:
             db.session.add(user)
             db.session.commit()
             current_app.logger.info('New user added: {}'.format(user_id))
         else:
-            current_app.logger.info('User {} already found; logging in redirecting to dashboard'.format(user_id))
+            u.access_token = token
+            current_app.logger.info('User {} already found; updating token, logging in,'
+                                    ' and redirecting to dashboard'.format(user_id))
         return user
 
     @staticmethod
