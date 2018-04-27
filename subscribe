@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -X POST https://api.strava.com/api/v3/push_subscriptions -F client_id=24713 -F client_secret=5ae39008f63db2921e43aa2aa0cf574353c5c2a3 -F 'callback_url=http://www.greenamer.com/handler' -F 'verify_token=ilostmyshoes'

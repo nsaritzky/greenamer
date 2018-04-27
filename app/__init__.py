@@ -8,6 +8,7 @@ from flask_bootstrap import Bootstrap
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_googlemaps import GoogleMaps
 
 from config import Config
 
@@ -31,12 +32,16 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     bootstrap.init_app(app)
+    GoogleMaps(app)
 
     from app.webhooks import bp as webhooks_bp
     app.register_blueprint(webhooks_bp)
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
+
+    from app.maps import bp as maps_bp
+    app.register_blueprint(maps_bp)
 
     if app.config['LOG_TO_STDOUT']:
         stream_handler = logging.StreamHandler()

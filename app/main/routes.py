@@ -61,7 +61,7 @@ def rules():
 
     map_images = {}
     for rule in current_user.rules:
-        dmap = DecoratedMap(key=Config.GOOGLE_MAPS_KEY, size_x=280, size_y=280)
+        dmap = DecoratedMap(key=Config.GOOGLEMAPS_KEY, size_x=280, size_y=280)
         dmap.add_marker(LatLonMarker(rule.lat, rule.lng))
         map_images[rule.id] = dmap.generate_url()
 
