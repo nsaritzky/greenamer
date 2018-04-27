@@ -48,13 +48,13 @@
 {#                <span class="sr-only">(current)</span>#}
 {#              </a>#}
 {#            </li>#}
-            {% if current_user.is_anonymous %}
+            {% if not current_user.is_anonymous %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{{ redirect }}">
-                      <img src="http://greenamer.s3.amazonaws.com/static/btn_strava_connectwith_orange.svg" height="35" alt="Connect With Strava">
-                  </a>
+{#                  <a class="nav-link" href="{{ redirect }}">#}
+{#                      <img src="http://greenamer.s3.amazonaws.com/static/btn_strava_connectwith_orange.svg" height="35" alt="Connect With Strava">#}
+{#                  </a>#}
+                    <a class="nav-link" href="{{ url_for('main.rules') }}">Dashboard</a>
                 </li>
-            {% else %}
                 <p class="text-light">Hi, {{ current_user.first_name }} </p>
             {% endif %}
 {#            <li class="nav-item">#}
@@ -82,6 +82,7 @@
 
     <!-- Bootstrap core JavaScript -->
     <script src="http://greenamer.s3.amazonaws.com/static/vendor/jquery/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
     <script src="http://greenamer.s3.amazonaws.com/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   </body>

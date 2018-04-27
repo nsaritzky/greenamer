@@ -1,5 +1,31 @@
 {% extends "base.html" %}
 
 {%  block app_content %}
-wassup
+    <main role="main" class="container">
+
+      <div class="starter-template">
+            <div class="card mt-5 pb-3 mx-auto w-50">
+                <h2 class="card-title">
+                    Welcome to Greenamer
+                </h2>
+                <p class="card-text">
+                    Do you rename your Wednesday morning run every week to Wake-up Wednesday?
+                </p>
+            </div>
+            <div class="card mx-auto w-50 mt-5">
+                <div class="card-header">
+                    How does this work?
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">1. Connect us with your Strava account.</li>
+                    <li class="list-group-item">2. Give us the times and starting locations of the activities you want renamed.</li>
+                    <li class="list-group-item">3. Watch us rename them for you right after they're uploaded.</li>
+                </ul>
+            </div>
+          <a href="{{ redirect }}">
+              <img src="http://greenamer.s3.amazonaws.com/static/btn_strava_connectwith_orange.svg" height="35" alt="Connect With Strava">
+          </a>
+      </div>
+
+    </main><!-- /.container -->
 {%  endblock %}
