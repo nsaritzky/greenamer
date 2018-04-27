@@ -1,6 +1,6 @@
 from datetime import datetime, date, timedelta
 
-from flask import render_template, redirect, request, current_app, flash
+from flask import render_template, redirect, request, current_app, flash, url_for
 from flask_login import current_user, login_user, logout_user
 from flask_login import login_required
 from stravalib import Client
@@ -10,7 +10,7 @@ from app.forms import RuleForm, DeleteForm
 from app.models import User, Rule
 from config import Config
 
-from flask_cdn import url_for
+# from flask_cdn import url_for
 from app.main import bp
 
 from motionless import DecoratedMap, LatLonMarker

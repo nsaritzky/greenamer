@@ -1,6 +1,5 @@
 .python-version
 .idea/
-app/static/
 .env
 app.db
 venv/

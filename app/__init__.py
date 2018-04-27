@@ -1,7 +1,7 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-from flask_cdn import CDN
+# from flask_cdn import CDN
 
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -18,13 +18,13 @@ bootstrap = Bootstrap()
 login = LoginManager()
 login.login_view = 'main.index'
 
-cdn = CDN()
+# cdn = CDN()
 
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    cdn.init_app(app)
+    # cdn.init_app(app)
     if not app.config['CDN_DOMAIN']:
         logging.warning('CDN_DOMAIN not set')
 

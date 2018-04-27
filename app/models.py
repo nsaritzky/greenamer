@@ -91,6 +91,13 @@ class User(UserMixin, db.Model):
                 break  # No need to check any more activities
                 # return rule.activity_name
 
+    def collect_start_points(self, number_of_markers=50):
+        client = Client(self.access_token)
+        activities = client.get_activities(limit=number_of_markers)
+        streams = {activity.id: client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
+                   for activity in activities}
+        return {activity.id: streams['latlng'].data[0] for activity in activities}
+
     def __repr__(self):
         return '<User {}; First Name: {}>'.format(self.id, self.first_name)
 

@@ -11,6 +11,7 @@ dominate==2.3.1
 Flask==0.12.2
 Flask-Bootstrap==3.3.7.1
 Flask-CDN==1.5.3
+Flask-GoogleMaps
 Flask-Login==0.4.1
 Flask-Migrate==2.1.1
 Flask-S3-gzip==0.1.8
