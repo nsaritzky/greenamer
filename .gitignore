@@ -6,3 +6,4 @@ venv/
 __pycache__/
 logs/
 *.py[cod]
+Pipfile.lock
