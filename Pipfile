@@ -52,6 +52,7 @@ SQLAlchemy = "==1.2.7"
 Werkzeug = "==0.14.1"
 WTForms = "==2.1"
 WTForms-Components = "==0.10.3"
+googlemaps = "*"
 
 [dev-packages]
 

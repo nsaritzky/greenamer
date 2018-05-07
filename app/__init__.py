@@ -9,6 +9,7 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_googlemaps import GoogleMaps
+from dotenv import load_dotenv
 
 from config import Config
 
@@ -27,6 +28,8 @@ def create_app(config_class=Config):
     # cdn.init_app(app)
     if not app.config['CDN_DOMAIN']:
         logging.warning('CDN_DOMAIN not set')
+
+    load_dotenv()
 
     db.init_app(app)
     migrate.init_app(app, db)

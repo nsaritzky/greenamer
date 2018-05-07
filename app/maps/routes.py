@@ -6,18 +6,20 @@ from app.models import User, Rule
 from config import Config
 from stravalib import Client
 
-NUMBER_OF_MARKERS: int = 10
+NUMBER_OF_MARKERS: int = 50
 
 
 @bp.route('/map')
 @login_required
 def map_page():
     start_points = current_user.collect_start_points(NUMBER_OF_MARKERS)
+    # logging.in
     myMap = Map(
+        style="height:700px;width:600px",
         identifier="view-side",
-        lat=37.4419,
-        lng=-122.1419,
-        markers=[(37.4419, -122.1419)]
+        lat=list(start_points.values())[0][0],
+        lng=list(start_points.values())[0][1],
+        markers=list(start_points.values())
     )
 
     return render_template('map.html', mymap=myMap)
