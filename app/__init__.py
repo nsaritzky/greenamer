@@ -35,7 +35,7 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     login.init_app(app)
     bootstrap.init_app(app)
-    GoogleMaps(app)
+    # GoogleMaps(app)
 
     from app.webhooks import bp as webhooks_bp
     app.register_blueprint(webhooks_bp)
@@ -43,8 +43,8 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    from app.maps import bp as maps_bp
-    app.register_blueprint(maps_bp)
+    # from app.maps import bp as maps_bp
+    # app.register_blueprint(maps_bp)
 
     if app.config['LOG_TO_STDOUT']:
         stream_handler = logging.StreamHandler()
