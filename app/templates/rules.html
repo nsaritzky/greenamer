@@ -41,8 +41,29 @@
                 </div>
             {% endfor %}
         <div class="col-md">
-            {{ form.csrf_token }}
-            {{ wtf.quick_form(form, form_type="inline")}}
+            <form class="form form-inline" method="POST">
+                {{ form.hidden_tag() }}
+                {{ form.location(class_="form-control") }}
+                {{ form.days(class_="form-control") }}
+                {{ form.time(class_="form-control") }}
+                {{ form.activity_name(class_="form-control") }}
+                {{ form.submit(class_="btn btn-primary") }}
+            </form>
         </div>
     </div>
+    <script type="text/javascript">
+        var autocomplete;
+
+        function initAutocomplete() {
+            autocomplete = new google.maps.places.Autocomplete(document.getElementById('location'));
+            autocomplete.addListener('place_changed', fillInCoords);
+        }
+
+        function fillInCoords() {
+            var place = autocomplete.getPlace();
+            document.getElementById('latitude').value = place.geometry.location.lat();
+            document.getElementById('longitude').value = place.geometry.location.lng();
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC8d2yHTURhjvk59KyM51w8GOJ1JbEo3ts&libraries=places&callback=initAutocomplete" defer="" async=""></script>
 {% endblock %}

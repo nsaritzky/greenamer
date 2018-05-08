@@ -74,6 +74,8 @@ def rules():
         rule_day = timedelta(days=form.days.data)
         rule_time = form.time.data
         new_rule = current_user.make_rule(form.location.data,
+                                          form.latitude.data,
+                                          form.longitude.data,
                                           datetime.combine((ARBITRARY_MONDAY + rule_day), rule_time),
                                           form.activity_name.data)
         new_rule.record()

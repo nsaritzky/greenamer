@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, widgets, \
-    SubmitField, SelectField, BooleanField, IntegerField, DateField
+from wtforms import StringField, \
+    SubmitField, SelectField, IntegerField, FloatField
+from wtforms.widgets import HiddenInput
 from wtforms.validators import DataRequired, ValidationError
 from wtforms_components import TimeField
 from geopy.geocoders import Nominatim
@@ -27,11 +28,13 @@ ARBITRARY_MONDAY = date(2018, 4, 16)
 
 class DeleteForm(FlaskForm):
     submit = SubmitField('Delete')
-    id = IntegerField('id', widget=widgets.HiddenInput(), validators=[DataRequired()])
+    id = IntegerField('id', widget=HiddenInput(), validators=[DataRequired()])
 
 
 class RuleForm(FlaskForm):
-    location = StringField('Location', validators=[DataRequired()], render_kw={'placeholder': 'Address'})
+    location = StringField('Location', validators=[DataRequired()], render_kw={'placeholder': 'Location'})
+    latitude = FloatField('latitude', widget=HiddenInput())
+    longitude = FloatField('longitude', widget=HiddenInput())
     daysOfTheWeek = [(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'),
                      (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')]
     days = SelectField('Days', choices=daysOfTheWeek, coerce=int, validators=[DataRequired()])
@@ -42,19 +45,16 @@ class RuleForm(FlaskForm):
     submit = SubmitField('New Rule')
 
     def validate_location(self, field):
-        geolocator = Nominatim(timeout=10)
-        current_app.logger.debug(field.data)
-        if geolocator.geocode(field.data) is None:
-            raise ValidationError('Could not resolve address; please check it and try again.')
-        else:
-            current_app.logger.debug(field.data, self.days.data, self.time.data)
-            rule_day = timedelta(days=self.days.data)
-            rule_time = self.time.data
-            provisional_rule = current_user.make_rule(address=self.location.data,
-                                                      day_and_time=datetime.combine((ARBITRARY_MONDAY + rule_day), rule_time),
-                                                      activity_name='')
-            if current_user.check_rules_for_duplicate(provisional_rule):
-                raise ValidationError('This overlaps with an already-existing rule')
+        current_app.logger.debug(field.data, self.days.data, self.time.data)
+        rule_day = timedelta(days=self.days.data)
+        rule_time = self.time.data
+        provisional_rule = current_user.make_rule(address=self.location.data,
+                                                  latitude=self.latitude,
+                                                  longitude=self.longitude,
+                                                  day_and_time=datetime.combine((ARBITRARY_MONDAY + rule_day), rule_time),
+                                                  activity_name='')
+        if current_user.check_rules_for_duplicate(provisional_rule):
+            raise ValidationError('This overlaps with an already-existing rule')
 
     # def validate_time(self, field):
     #     if self.location.data is '' or self.days.data is None or field.data is None:

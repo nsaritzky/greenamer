@@ -59,10 +59,8 @@ class User(UserMixin, db.Model):
         # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
         #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
 
-    def make_rule(self, address: str, day_and_time: datetime, activity_name: str):
-        geolocator = Nominatim(timeout=10)
-        location = geolocator.geocode(address)
-        new_rule = Rule(lat=location.latitude, lng=location.longitude,
+    def make_rule(self, address: str, latitude: float, longitude: float, day_and_time: datetime, activity_name: str):
+        new_rule = Rule(lat=latitude, lng=longitude,
                         address=address, time=day_and_time, user_id=self.id,
                         activity_name=activity_name)
         return new_rule
