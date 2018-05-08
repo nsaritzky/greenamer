@@ -13,11 +13,14 @@ import requests
 
 
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    access_token = db.Column(db.String(128))
-    first_name = db.Column(db.String)
+    id = db.Column(db.Integer, primary_key=True)  # The user's Strava ID
+    access_token = db.Column(db.String(128))  # Strava access token
+    first_name = db.Column(db.String)  # First name, pulled from Strava
     rules = db.relationship('Rule', backref='user', lazy='dynamic')
 
+    # Takes a temporary access code returned from Strava and retrieves the associated user and access token.
+    # Then it checks for the user in the database. If they're not found, then the new user is recorded.
+    # If they are found, then just the access token is recorded in case it has changed.
     @staticmethod
     def add_user(code: str):
         client = Client()
@@ -49,28 +52,34 @@ class User(UserMixin, db.Model):
                                     ' and redirecting to dashboard'.format(user_id))
         return user
 
-    @staticmethod
-    def subscribe():
-        payload = {'client_id': Config.CLIENT_ID,
-                   'client_secret': Config.CLIENT_SECRET,
-                   'callback_url': 'http://' + Config.SERVER_NAME,
-                   'verify_token': Config.WEBHOOK_TOKEN}
-        requests.post('https://api.strava.com/api/v3/push_subscriptions', data=payload)
-        # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
-        #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
+    # @staticmethod
+    # def subscribe():
+    #     payload = {'client_id': Config.CLIENT_ID,
+    #                'client_secret': Config.CLIENT_SECRET,
+    #                'callback_url': 'http://' + Config.SERVER_NAME,
+    #                'verify_token': Config.WEBHOOK_TOKEN}
+    #     requests.post('https://api.strava.com/api/v3/push_subscriptions', data=payload)
+    #     # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
+    #     #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
 
+    # Makes a rule object from the associated data. Note that this method does not record the rule to the database.
+    # This is done a) so that the check_rule() method can be called on it before committing it to the database, and
+    # b) for unit testing.
     def make_rule(self, address: str, latitude: float, longitude: float, day_and_time: datetime, activity_name: str):
         new_rule = Rule(lat=latitude, lng=longitude,
                         address=address, time=day_and_time, user_id=self.id,
                         activity_name=activity_name)
         return new_rule
 
+    # Checks a given rule for duplicates among this user's already-existing rules.
     def check_rules_for_duplicate(self, rule_to_check) -> bool:
         for rule in self.rules:
             if rule.check_rule(rule=rule_to_check):
                 return True
         return False
 
+    # Resolves a webhook event from Strava by retrieving the activity data and checking it against
+    # the user's existing rules. If a match is found, sends the request to Strava to rename it.
     def resolve_webhook(self, object_id: int):
         client = Client(access_token=self.access_token)
         activity = client.get_activity(object_id)
@@ -78,46 +87,54 @@ class User(UserMixin, db.Model):
         # to call the raw stream of points to get what we need.
         points = client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
         activity_start = points['latlng'].data[0]
-        current_app.logger.debug('Webhook event received: Activity {}, User {}, Starting point {}, Starting time {}'.format(
-            object_id, self.id, activity_start, activity.start_date_local))
+        current_app.logger.debug(
+            'Webhook event received: Activity {}, User {}, Starting point {}, Starting time {}'.format(
+                object_id, self.id, activity_start, activity.start_date_local))
         for rule in self.rules.all():
             current_app.logger.debug('Checking {} against activity {}'.format(rule, object_id))
             if rule.check_rule(activity_start, activity.start_date_local):
                 # if not current_app.config.TESTING:
                 client.update_activity(object_id, name=rule.activity_name)
-                current_app.logger.info('Activity {} renamed to {} for {}'.format(activity.id, rule.activity_name, self))
+                current_app.logger.info(
+                    'Activity {} renamed to {} for {}'.format(activity.id, rule.activity_name, self))
                 break  # No need to check any more activities
                 # return rule.activity_name
 
-    def collect_start_points(self, number_of_markers=50):
-        client = Client(self.access_token)
-        activities = client.get_activities(limit=number_of_markers)
-        streams = {activity.id: client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
-                   for activity in activities}
-        return {activity.id: streams[activity.id]['latlng'].data[0] for activity in activities}
+    # # Collects the starting points of Strava activities for the user. Currently very slow.
+    # def collect_start_points(self, number_of_markers=50):
+    #     client = Client(self.access_token)
+    #     activities = client.get_activities(limit=number_of_markers)
+    #     streams = {activity.id: client.get_activity_streams(activity.id, types=['latlng'], resolution='low')
+    #                for activity in activities}
+    #     return {activity.id: streams[activity.id]['latlng'].data[0] for activity in activities}
 
     def __repr__(self):
         return '<User {}; First Name: {}>'.format(self.id, self.first_name)
 
 
 class Rule(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)  # Arbitrary id int
     lat = db.Column(db.Float)
     lng = db.Column(db.Float)  # The latitude and longitude associated to the rule are computed on creation
     address = db.Column(db.String)  # The address is stored for display back to the user
-    time = db.Column(db.DateTime)
+    time = db.Column(db.DateTime)  # The and day of the week associated to the rule. The datetime object is recorded as
+    # a particular arbitrary day, but only the day of the week is used.
     append_date = db.Column(db.Boolean)
-    activity_name = db.Column(db.String)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    activity_name = db.Column(db.String)  # The name for activities renamed by this rule
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # The associated user
 
     # Checks if a given timestamp (in units of seconds from Epoch) is within 1,000 seconds of the time specified
     # in the rule, modulo 1 week
 
+    # Records the rule object to the database.
     def record(self):
         db.session.add(self)
         db.session.commit()
         current_app.logger.info('New rule added: {}'.format(self))
 
+    # Checks to see if the rule matches a given time and day of the week. Used for checking against
+    # new activities received from webhooks. Also used to validate new rules against duplicates, hence the
+    # optional rule argument.
     def check_time(self, start_time=None, delta=timedelta(seconds=1000), rule=None) -> bool:
         if rule is None:
             difference = start_time - self.time
@@ -126,6 +143,8 @@ class Rule(db.Model):
         week: timedelta = timedelta(days=7)
         return ((difference % week) < delta) or ((-difference % week) < delta)
 
+    # Checks to see if the rule matches a given location. Like the check_time() method, also used for
+    # duplicate-checking.
     def check_distance(self, start_point=None, radius: float = .25, rule=None) -> bool:
         if rule is None:
             point_to_check = start_point
@@ -142,6 +161,7 @@ class Rule(db.Model):
         else:
             return self.check_time(rule=rule) and self.check_distance(rule=rule)
 
+    # Deletes the rule from the database.
     def delete_rule(self):
         db.session.delete(self)
         db.session.commit()
