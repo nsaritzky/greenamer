@@ -56,6 +56,10 @@ class RuleForm(FlaskForm):
         if current_user.check_rules_for_duplicate(provisional_rule):
             raise ValidationError('This overlaps with an already-existing rule')
 
+    # def validate_latitude(self, field):
+    #     if field.data is None:
+    #         raise ValidationError('Could not resolve location; please check the address and try again.')
+
     # def validate_time(self, field):
     #     if self.location.data is '' or self.days.data is None or field.data is None:
     #         raise ValidationError('Something was left blank')

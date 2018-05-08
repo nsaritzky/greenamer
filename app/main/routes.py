@@ -24,11 +24,15 @@ ARBITRARY_MONDAY = date(2018, 4, 16)
 
 def flash_errors(form):
     for field, errors in form.errors.items():
-        for error in errors:
-            flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error
-            ))
+        field_name = getattr(form, field).label.text
+        if field_name is 'latitude':
+            flash(u"Could not resolve location; please check the address and try again.")
+        elif field_name is not 'longitude':
+            for error in errors:
+                flash(u"Error in the %s field - %s" % (
+                    getattr(form, field).label.text,
+                    error
+                ))
 
 
 @bp.route('/')
