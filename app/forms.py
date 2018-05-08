@@ -33,8 +33,8 @@ class DeleteForm(FlaskForm):
 
 class RuleForm(FlaskForm):
     location = StringField('Location', validators=[DataRequired()], render_kw={'placeholder': 'Location'})
-    latitude = FloatField('latitude', widget=HiddenInput())
-    longitude = FloatField('longitude', widget=HiddenInput())
+    latitude = FloatField('latitude', widget=HiddenInput(), validators=[DataRequired()])
+    longitude = FloatField('longitude', widget=HiddenInput(), validators=[DataRequired()])
     daysOfTheWeek = [(0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'),
                      (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')]
     days = SelectField('Days', choices=daysOfTheWeek, coerce=int, validators=[DataRequired()])
