@@ -93,7 +93,8 @@ def rules():
 
     flash_errors(form)
 
-    return render_template('rules.html', title='Rules', form=form, delete_forms=delete_forms, map_urls=map_images)
+    return render_template('rules.html', title='Rules', form=form, delete_forms=delete_forms, map_urls=map_images,
+                           maps_key=Config.GOOGLEMAPS_KEY)
 
 
 @bp.route('/logout')
