@@ -65,5 +65,5 @@
             document.getElementById('longitude').value = place.geometry.location.lng();
         }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC8d2yHTURhjvk59KyM51w8GOJ1JbEo3ts&libraries=places&callback=initAutocomplete" defer="" async=""></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ maps_key }}&libraries=places&callback=initAutocomplete" defer="" async=""></script>
 {% endblock %}
