@@ -96,6 +96,9 @@ def rules():
     return render_template('rules.html', title='Rules', form=form, delete_forms=delete_forms, map_urls=map_images,
                            maps_key=Config.GOOGLEMAPS_KEY)
 
+@bp.route('/about')
+def about():
+    return render_template('about.html')
 
 @bp.route('/logout')
 def logout():
