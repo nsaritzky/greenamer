@@ -8,4 +8,4 @@ logs/
 *.py[cod]
 Pipfile.lock
 .mypy_cache/
-subscribe
+.subscribe
