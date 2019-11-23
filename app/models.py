@@ -15,14 +15,18 @@ import requests
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)  # The user's Strava ID
     access_token = db.Column(db.String(128))  # Strava access token
+    refresh_token = db.Column(db.String(128)) # Strava refresh token
+    access_expr = db.Column(DateTime)
     first_name = db.Column(db.String)  # First name, pulled from Strava
     rules = db.relationship('Rule', backref='user', lazy='dynamic')
 
-    # Takes a temporary access code returned from Strava and retrieves the associated user and access token.
-    # Then it checks for the user in the database. If they're not found, then the new user is recorded.
-    # If they are found, then just the access token is recorded in case it has changed.
     @staticmethod
     def add_user(code: str):
+    """
+    Takes a temporary access code returned from Strava and retrieves the associated user and access token.
+    Then it checks for the user in the database. If they're not found, then the new user is recorded.
+    If they are found, then just the access token is recorded in case it has changed.
+    """
         client = Client()
         if not Config.TESTING:
             token = client.exchange_code_for_token(client_id=Config.CLIENT_ID,
@@ -62,25 +66,31 @@ class User(UserMixin, db.Model):
     #     # Client.create_subscription(self.id, client_id=Config.CLIENT_ID, client_secret=Config.CLIENT_SECRET,
     #     #                            callback_url='http://ec2-13-58-76-233.us-east-2.compute.amazonaws.com:5000/handler', verify_token=Config.WEBHOOK_TOKEN)
 
-    # Makes a rule object from the associated data. Note that this method does not record the rule to the database.
-    # This is done a) so that the check_rule() method can be called on it before committing it to the database, and
-    # b) for unit testing.
     def make_rule(self, address: str, latitude: float, longitude: float, day_and_time: datetime, activity_name: str):
+    """
+    Makes a rule object from the associated data. Note that this method does not record the rule to the database.
+    This is done a) so that the check_rule() method can be called on it before committing it to the database, and
+    b) for unit testing.
+    """
         new_rule = Rule(lat=latitude, lng=longitude,
-                        address=address, time=day_and_time, user_id=self.id,
+                                address=address, time=day_and_time, user_id=self.id,
                         activity_name=activity_name)
         return new_rule
 
-    # Checks a given rule for duplicates among this user's already-existing rules.
     def check_rules_for_duplicate(self, rule_to_check) -> bool:
+    """
+    Checks a given rule for duplicates among this user's already-existing rules.
+    """
         for rule in self.rules:
             if rule.check_rule(rule=rule_to_check):
                 return True
         return False
 
-    # Resolves a webhook event from Strava by retrieving the activity data and checking it against
-    # the user's existing rules. If a match is found, sends the request to Strava to rename it.
     def resolve_webhook(self, object_id: int):
+    """
+    Resolves a webhook event from Strava by retrieving the activity data and checking it against
+    the user's existing rules. If a match is found, sends the request to Strava to rename it.
+    """
         client = Client(access_token=self.access_token)
         activity = client.get_activity(object_id)
         # The Strava API doesn't give enough precision in its start latitude and longitude values, so we have
@@ -126,16 +136,20 @@ class Rule(db.Model):
     # Checks if a given timestamp (in units of seconds from Epoch) is within 1,000 seconds of the time specified
     # in the rule, modulo 1 week
 
-    # Records the rule object to the database.
     def record(self):
+    """
+    Records the rule object to the database.
+    """
         db.session.add(self)
         db.session.commit()
         current_app.logger.info('New rule added: {}'.format(self))
 
-    # Checks to see if the rule matches a given time and day of the week. Used for checking against
-    # new activities received from webhooks. Also used to validate new rules against duplicates, hence the
-    # optional rule argument.
     def check_time(self, start_time=None, delta=timedelta(seconds=1000), rule=None) -> bool:
+    """
+    Checks to see if the rule matches a given time and day of the week. Used for checking against
+    new activities received from webhooks. Also used to validate new rules against duplicates, hence the
+    optional rule argument.
+    """
         if rule is None:
             difference = start_time - self.time
         else:
@@ -143,26 +157,32 @@ class Rule(db.Model):
         week: timedelta = timedelta(days=7)
         return ((difference % week) < delta) or ((-difference % week) < delta)
 
-    # Checks to see if the rule matches a given location. Like the check_time() method, also used for
-    # duplicate-checking.
     def check_distance(self, start_point=None, radius: float = .25, rule=None) -> bool:
+    """
+    Checks to see if the rule matches a given location. Like the check_time() method, also used for
+    duplicate-checking.
+    """
         if rule is None:
             point_to_check = start_point
         else:
             point_to_check = (rule.lat, rule.lng)
         return distance((self.lat, self.lng), point_to_check).miles < radius
 
-    # The time and distance checks are being kept separate mostly for unit tests, but most of the time, they're used
-    # together. So here's a function that combines them.
     def check_rule(self, start_point=None, start_time=None, delta=timedelta(seconds=1000), radius: float = .25,
                    rule=None) -> bool:
+    """
+    The time and distance checks are being kept separate mostly for unit tests, but most of the time, they're used
+    together. So here's a function that combines them.
+    """
         if rule is None:
             return self.check_time(start_time, delta) and self.check_distance(start_point, radius)
         else:
             return self.check_time(rule=rule) and self.check_distance(rule=rule)
 
-    # Deletes the rule from the database.
     def delete_rule(self):
+    """
+    Deletes the rule from the database.
+    """
         db.session.delete(self)
         db.session.commit()
         current_app.logger.info('{} deleted'.format(self))
