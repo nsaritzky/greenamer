@@ -7,3 +7,6 @@ __pycache__/
 logs/
 *.py[cod]
 Pipfile.lock
+.mypy_cache/
+.subscribe
+.vscode/*
