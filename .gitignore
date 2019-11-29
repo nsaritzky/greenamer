@@ -9,3 +9,4 @@ logs/
 Pipfile.lock
 .mypy_cache/
 .subscribe
+.vscode/*

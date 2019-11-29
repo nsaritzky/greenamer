@@ -19,12 +19,14 @@ Flask-CDN = "^1.5"
 Flask-Googlemaps = "^0.2.6"
 Flask-Login = "^0.4.1"
 Flask-Migrate = "^2.5"
-stravalib = "~0.9"
+stravalib = "~0.10"
 flask_wtf = "^0.14.2"
 python-dotenv = "^0.10.3"
 geopy = "^1.20"
 
 [tool.poetry.dev-dependencies]
+black = "^19.10b0"
+rope = "^0.14.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
