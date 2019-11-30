@@ -111,9 +111,6 @@ def rules():
         maps_key=Config.GOOGLEMAPS_KEY,
     )
 
-@bp.route('/about')
-def about():
-    return render_template('about.html')
 
 @bp.route("/about")
 def about():
