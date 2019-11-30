@@ -258,6 +258,23 @@ requests = ">=2.20.0,<3.0"
 
 [[package]]
 category = "main"
+description = "WSGI HTTP Server for UNIX"
+name = "gunicorn"
+optional = false
+python-versions = ">=3.4"
+version = "20.0.4"
+
+[package.dependencies]
+setuptools = ">=3.0"
+
+[package.extras]
+eventlet = ["eventlet (>=0.9.7)"]
+gevent = ["gevent (>=0.13)"]
+setproctitle = ["setproctitle"]
+tornado = ["tornado (>=0.2)"]
+
+[[package]]
+category = "main"
 description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
 optional = false
@@ -336,7 +353,7 @@ description = "An easy way to generate Google Static Map URLs with Python."
 name = "motionless"
 optional = false
 python-versions = "*"
-version = "1.3.2"
+version = "1.3.1"
 
 [package.dependencies]
 setuptools = "*"
@@ -586,7 +603,7 @@ test = ["zope.event"]
 testing = ["coverage", "nose", "zope.event"]
 
 [metadata]
-content-hash = "c5a499b886761af0fdbc2aafb41068feacd0a2b2439767988c44af2782d27977"
+content-hash = "c412b116d4e3c28708b871cead1c5403df8e63d9bd554b5eae2c9ac2cb3d6fe7"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -674,6 +691,10 @@ googlemaps = [
     {file = "googlemaps-3.1.4-py3-none-any.whl", hash = "sha256:dbcccc41fc19b4b7b304a837ab2348f7a7a0db56390ea4e08abbc29ad41bea98"},
     {file = "googlemaps-3.1.4.tar.gz", hash = "sha256:fc51565fa5e008391dc1df526997a029424dc7be60517ab12fc07708c2bf5930"},
 ]
+gunicorn = [
+    {file = "gunicorn-20.0.4-py2.py3-none-any.whl", hash = "sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c"},
+    {file = "gunicorn-20.0.4.tar.gz", hash = "sha256:1904bb2b8a43658807108d59c3f3d56c2b6121a701161de0ddf9ad140073c626"},
+]
 idna = [
     {file = "idna-2.8-py2.py3-none-any.whl", hash = "sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c"},
     {file = "idna-2.8.tar.gz", hash = "sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407"},
@@ -726,7 +747,7 @@ markupsafe = [
     {file = "MarkupSafe-1.1.1.tar.gz", hash = "sha256:29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"},
 ]
 motionless = [
-    {file = "motionless-1.3.2.tar.gz", hash = "sha256:04d029dc2f06bf0301bdc0d1d27347dfaec6efaf2809282a645205059528bf3d"},
+    {file = "motionless-1.3.1.tar.gz", hash = "sha256:a506bda9e02afc6464143156106599fcced225b1641ea93d6fd8095b148558d9"},
 ]
 pathspec = [
     {file = "pathspec-0.6.0.tar.gz", hash = "sha256:e285ccc8b0785beadd4c18e5708b12bb8fcf529a1e61215b3feff1d1e559ea5c"},
