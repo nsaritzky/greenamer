@@ -91,6 +91,7 @@ class User(UserMixin, db.Model):
                 "Using existing token."
             )
 
+    @property
     def expired(self) -> bool:
         return self.access_expr < datetime.now()
 
