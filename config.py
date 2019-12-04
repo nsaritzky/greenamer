@@ -23,7 +23,7 @@ class Config(object):
     else:
         redirect_url = 'http://localhost:5000'
     OAUTH_URL = f'https://www.strava.com/oauth/authorize?client_id={CLIENT_ID}' \
-                '&scope=activity:write,read' \
+                '&scope=activity:write,activity:read,read' \
                 '&response_type=code' \
                 '&approval_prompt=auto' \
                 f'&redirect_uri={redirect_url}/auth'

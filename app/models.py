@@ -4,6 +4,8 @@ from app import db, login
 from flask_login import UserMixin
 from stravalib import Client
 
+from typing import Optional
+
 from config import Config
 from flask import url_for, current_app
 from datetime import datetime, timedelta
@@ -51,21 +53,25 @@ class User(UserMixin, db.Model):
             first_name = "joe"
 
         # noinspection PyArgumentList
-        u = User(
-            id=user_id,
-            first_name=first_name,
-            access_token=access_token,
-            refresh_token=refresh_token,
-            access_expr=access_expr,
-        )
 
         # Check if the user is already in the db
         if User.query.get(user_id) is None:
+            u = User(
+                id=user_id,
+                first_name=first_name,
+                access_token=access_token,
+                refresh_token=refresh_token,
+                access_expr=access_expr,
+            )
             db.session.add(u)
             db.session.commit()
             current_app.logger.info(f"New user added: {user_id}")
         else:
-            u.refresh()
+            u = User.query.get(user_id)
+            u.access_token = access_token
+            u.refresh_token = refresh_token
+            u.access_expr = access_expr
+            db.session.commit()
             current_app.logger.info(
                 f"User {user_id} already found; updating token, logging in,"
                 " and redirecting to dashboard"
@@ -93,7 +99,8 @@ class User(UserMixin, db.Model):
 
     @property
     def expired(self) -> bool:
-        return self.access_expr < datetime.now()
+        try: return self.access_expr < datetime.now()
+        except TypeError: return True
 
     # def refresh_user(self, )
 
@@ -131,14 +138,14 @@ class User(UserMixin, db.Model):
         )
         return new_rule
 
-    def check_rules_for_duplicate(self, rule_to_check: "Rule") -> bool:
+    def check_rules_for_match(self, rule_to_check: "Rule") -> Optional["Rule"]:
         """
         Checks a given rule for duplicates among this user's already-existing rules.
         """
         for rule in self.rules:
             if rule.check_rule(rule=rule_to_check):
-                return True
-        return False
+                return rule
+        return None
 
     def resolve_webhook(self, object_id: int):
         """
