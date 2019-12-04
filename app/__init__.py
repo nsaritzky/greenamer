@@ -1,17 +1,18 @@
 import logging
-import os
 from logging.handlers import RotatingFileHandler
+import os
+import sys
 
-# from flask_cdn import CDN
-
+from dotenv import load_dotenv
 from flask import Flask
 from flask_bootstrap import Bootstrap
+from flask_googlemaps import GoogleMaps
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_googlemaps import GoogleMaps
-from dotenv import load_dotenv
 
+from app import models
+from app.main import routes
 from config import Config
 
 db = SQLAlchemy()
@@ -50,7 +51,7 @@ def create_app(config_class=Config):
     # app.register_blueprint(maps_bp)
 
     if app.config["LOG_TO_STDOUT"]:
-        stream_handler = logging.StreamHandler()
+        stream_handler = logging.StreamHandler(sys.stdout)
         stream_handler.setLevel(logging.INFO)
         app.logger.addHandler(stream_handler)
     else:
@@ -74,5 +75,4 @@ def create_app(config_class=Config):
     return app
 
 
-from app import models
-from app.main import routes
+
