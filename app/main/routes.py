@@ -41,9 +41,9 @@ def flash_errors(form):
 @bp.route("/index")
 def index():
     if current_user.is_authenticated and current_user.refresh_token is not None:
-        current_app.logger.info(
-            f"User {current_user.id} is already logged in, redirecting to dashboard"
-        )
+        # current_app.logger.info(
+        #     f"User {current_user.id} is already logged in, redirecting to dashboard"
+        # )
         return redirect(url_for("main.rules"))
     return render_template(
         "index.html", title="Home", redirect=Config.OAUTH_URL, static=Config.STATIC_URL
@@ -119,6 +119,6 @@ def about():
 
 @bp.route("/logout")
 def logout():
-    current_app.logger.debug("Logging out user {}".format(current_user.id))
+    current_app.logger.debug(f"Logging out user {current_user.id}")
     logout_user()
     return redirect(url_for("main.index"))

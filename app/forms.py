@@ -53,7 +53,7 @@ class RuleForm(FlaskForm):
                                                   longitude=self.longitude,
                                                   day_and_time=datetime.combine((ARBITRARY_MONDAY + rule_day), rule_time),
                                                   activity_name='')
-        if current_user.check_rules_for_duplicate(provisional_rule):
+        if current_user.check_rules_for_match(provisional_rule) is not None:
             raise ValidationError('This overlaps with an already-existing rule')
 
     # def validate_latitude(self, field):
