@@ -1,7 +1,6 @@
 import logging
 from logging.handlers import RotatingFileHandler
-import os
-import sys
+import os, sys
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -11,8 +10,6 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
-from app import models
-from app.main import routes
 from config import Config
 
 db = SQLAlchemy()
